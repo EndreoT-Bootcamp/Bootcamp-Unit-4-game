@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,25 +9,36 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <title>Document</title>
 </head>
+
 <body>
-    <div id="all-characters" class="row"><h3>Your Character</h3></div>
+    <div id="all-characters" class="row">
+        <h3>Your Character</h3>
+    </div>
     <hr>
-    <div id="enemies-available" class="row"><h3>Enemies Available to Attack</h3></div>
+    <div id="enemies-available" class="row">
+        <h3>Enemies Available to Attack</h3>
+    </div>
     <hr>
-    <div id="fight-section"><h3>Fight Section</h3><button id="fight-button">Fight!</button></div>
+    <div id="fight-section">
+        <h3>Fight Section</h3><button id="fight-button">Fight!</button>
+    </div>
     <hr>
-    <div id="defender" class="row"><h3>Defender</h3></div>
+    <div id="defender" class="row">
+        <h3>Defender</h3>
+    </div>
+    <hr>
+    <div><button id="reset-game">Reset Game</button></div>
 
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- <script src="assets/javascript/game.js"></script> -->
     <script>
-    
+
         const charactersInitialState = {
             "Obi-Wan-Kenobi": {
                 name: "Obi-Wan-Kenobi",
-                hp: 120,
+                hp: 2, // 120
                 "attack-power": 6,
-               "counter-Attack-Power": 6
+                "counter-Attack-Power": 6
             },
             "Luke-Skywalker": {
                 name: "Luke-Skywalker",
@@ -46,97 +58,161 @@
                 "attack-power": 8,
                 "counter-Attack-Power": 8
             }
-        };   
+        };
 
-        const charactersDeepCopy = JSON.parse(JSON.stringify(charactersInitialState));
+        let charactersDeepCopy = {};
 
         const game = {
+            state: {
+                finished: false,
+                win: false,
+                loss: false
+            },
             selectedCharacter: "",
             selectedDefender: "",
-            gameFinished: false,
+            defeatedCharacters: 0,
+            totalCharacters: 0,
+
             fight(selectedCharacter, defender) { // (str, str)
                 const chosenCharacterAttack = charactersDeepCopy[selectedCharacter]["attack-power"];
                 charactersDeepCopy[selectedCharacter].hp -= charactersDeepCopy[defender]["counter-Attack-Power"];
                 charactersDeepCopy[defender].hp -= chosenCharacterAttack;
                 charactersDeepCopy[selectedCharacter]["attack-power"] += chosenCharacterAttack;
+            },
+            setGameState(finished, win, loss) {
+                this.state.finished = false;
+                this.state.win = false;
+                this.state.loss = false;
+            },
+            resetGameState() {
+                this.selectedCharacter = "";
+                this.selectedDefender = "";
+                this.setGameState(false, false, false);
+                this.totalCharacters = 0;
             }
         }
 
-        $(document).ready(function() {
-                    
+        $(document).ready(function () {
 
-            Object.values(charactersDeepCopy).forEach(stats => {
-                const characterBox = $("<div>");
-                const name = $("<div>");
-                name.text(stats.name);
+            function bindCharacterClick(box) {
+                // Moves character boxes to appropriate row based on game state
+                box.click(function () {
+                    if (!game.selectedCharacter) {
+                        box.css("background", "green"); // Change to style.css
+                        const x = $("#all-characters").children(".character-box").each(function () {
+                            if (!$(this).is(box)) {
+                                $("#enemies-available").append($(this));
+                            }
+                        });
+                        game.selectedCharacter = box.attr("name");
+                    } else if (!game.selectedDefender && game.selectedCharacter) {
+                        $("#defender").append(box);
+                        game.selectedDefender = box.attr("name");
+                    }
 
-                const hp = $("<div>");
-                const attack = $("<div>")
-                hp.text("Health: " + stats["hp"]);
-                hp.attr("class", "hp");
-                attack.text("Attack: " + stats["attack-power"]);
-                attack.attr("class", "attack")
+                })
+                // const box = $(this);        
+            }
 
-                characterBox
-                    .addClass("character-box")
-                    .attr("name", stats.name)
-                    .attr("hp", stats.hp)
-                    .attr("attack-power", stats["base-attack"])
-                    .attr("counter-attack-power", stats["base-attack"])
-                    .attr("id", stats.name)
-                    .append(name)
-                    .append(hp)
-                    .append(attack)
-                    
-                $("#all-characters").append(characterBox);
+            function resetGame() {
+
+                // Reset game state
+                game.resetGameState();
+
+                // Remove character boxes from all rows
+                $("#all-characters").empty();
+                $("#enemies-available").empty();
+                $("#defender").empty();
+
+                // Initialize all-character section with character boxes
+                charactersDeepCopy = JSON.parse(JSON.stringify(charactersInitialState));;
+                Object.values(charactersDeepCopy).forEach(stats => {
+                    game.totalCharacters++;
+                    const characterBox = $("<div>");
+                    const name = $("<div>");
+                    name.text(stats.name);
+
+                    const hp = $("<div>");
+                    const attack = $("<div>")
+                    hp.text("Health: " + stats["hp"]);
+                    hp.attr("class", "hp");
+                    attack.text("Attack: " + stats["attack-power"]);
+                    attack.attr("class", "attack")
+
+                    characterBox
+                        .addClass("character-box")
+                        .attr("name", stats.name)
+                        .attr("hp", stats.hp)
+                        .attr("attack-power", stats["base-attack"])
+                        .attr("counter-attack-power", stats["base-attack"])
+                        .attr("id", stats.name)
+                        .append(name)
+                        .append(hp)
+                        .append(attack)
+
+                    bindCharacterClick(characterBox);
+
+                    $("#all-characters").append(characterBox);
+                });
+            }
+
+            resetGame();
+
+            // bindCharacterClick(characterBox);
+            // $(".character-box").click(bindCharacterClick);
+
+            $("#reset-game").click(() => {
+                resetGame();
             });
 
-            $("#fight-button").click(() => {
+            $("#fight-button").click(() => {     
 
-                if (game.gameFinished || !game.selectedCharacter || !game.selectedDefender) {
+                if (game.state.finished || !game.selectedCharacter || !game.selectedDefender) {
                     return
                 }
-                const selectedCharacter = game.selectedCharacter
-                const defender = game.selectedDefender
-                game.fight(selectedCharacter, defender);
-                const selectedCharacterObj =  $("#" + selectedCharacter);
+                const selectedCharacterStr = game.selectedCharacter
+                const defenderStr = game.selectedDefender
+                const selectedCharacter = charactersDeepCopy[selectedCharacterStr]
+                const defender = charactersDeepCopy[defenderStr]
+
+                game.fight(selectedCharacterStr, defenderStr);
+                if (selectedCharacter.hp <= 0) {
+                    game.state.finished = true;
+                    game.state.loss = true;
+                    $("#reset-game").show();
+                }
+                if (defender.hp <= 0) {
+                    $("#defender").empty();
+                    game.selectedDefender = "";
+                    game.defeatedCharacters++;
+                } else {
+                    $("#" + defenderStr)
+                        .children(".hp")
+                        .text("Health: " + defender.hp);
+                }
+
+                const selectedCharacterObj = $("#" + selectedCharacterStr);
                 selectedCharacterObj
                     .children(".hp")
-                    .text("Health: " + charactersDeepCopy[selectedCharacter].hp)
+                    .text("Health: " + selectedCharacter.hp)
+
                 selectedCharacterObj
                     .children(".attack")
-                    .text("Attack: " + charactersDeepCopy[selectedCharacter]["attack-power"]);
-                $("#" + defender)
-                    .children(".hp")
-                    .text("Health: " + charactersDeepCopy[defender].hp);
-                
-           
-                
-                
+                    .text("Attack: " + selectedCharacter["attack-power"]);
 
-            })
-            
-            $(".character-box").click(function() {
-                const box = $(this);
-                
-                if (!game.selectedCharacter) {
-                    box.css("background", "green"); // Change to style.css
-                    const x = $("#all-characters").children(".character-box").each(function(item) {
-                        if (!$(this).is(box)) {
-                            $("#enemies-available").append($(this));
-                        }
-                    });      
-                    game.selectedCharacter = box.attr("name");
-                } else if (!game.selectedDefender && game.selectedCharacter)  {           
-                   $("#defender").append(box);
-                   game.selectedDefender = box.attr("name");      
+                if (game.state.loss) {
+                    console.log("YOU LOSE!")
                 }
-               
+                if (game.defeatedCharacters === game.totalCharacters - 1) {
+                    game.state.finished = true;
+                    game.state.win = true
+                    console.log("YOU WIN!")
+                }
             });
-
         });
-    
+
     </script>
-    
+
 </body>
+
 </html>
