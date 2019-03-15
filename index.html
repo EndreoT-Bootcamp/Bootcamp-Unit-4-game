@@ -11,21 +11,26 @@
 </head>
 
 <body>
+    <header>
+        <h1 id="title">Star Wars RPG</h1>
+    </header>
+    <h3>Your Character</h3>
     <div id="all-characters" class="row">
-        <h3>Your Character</h3>
+
     </div>
     <hr>
+    <h3>Enemies Available to Attack</h3>
     <div id="enemies-available" class="row">
-        <h3>Enemies Available to Attack</h3>
+
     </div>
     <hr>
     <div id="fight-section">
         <h3>Fight Section</h3><button id="fight-button">Fight!</button>
     </div>
     <hr>
-    <div id="defender" class="row">
-        <h3>Defender</h3>
-    </div>
+    <h3>Defender</h3>
+    <div id="defender" class="row"></div>
+    <div id="fight-result"></div>
     <hr>
     <div><button id="reset-game">Reset Game</button></div>
 
@@ -36,27 +41,27 @@
         const charactersInitialState = {
             "Obi-Wan-Kenobi": {
                 name: "Obi-Wan-Kenobi",
-                hp: 2, // 120
-                "attack-power": 6,
-                "counter-Attack-Power": 6
+                hp: 120,
+                "attack-power": 8,
+                "counter-attack-power": 8
             },
             "Luke-Skywalker": {
                 name: "Luke-Skywalker",
                 hp: 100,
-                "attack-power": 4,
-                "counter-Attack-Power": 4
+                "attack-power": 5,
+                "counter-attack-power": 5
             },
             "Darth-Sidious": {
                 name: "Darth-Sidious",
                 hp: 150,
-                "attack-power": 10,
-                "counter-Attack-Power": 10
+                "attack-power": 20,
+                "counter-attack-power": 20
             },
             "Darth-Maul": {
                 name: "Darth-Maul",
                 hp: 180,
-                "attack-power": 8,
-                "counter-Attack-Power": 8
+                "attack-power": 25,
+                "counter-attack-power": 25
             }
         };
 
@@ -75,7 +80,7 @@
 
             fight(selectedCharacter, defender) { // (str, str)
                 const chosenCharacterAttack = charactersDeepCopy[selectedCharacter]["attack-power"];
-                charactersDeepCopy[selectedCharacter].hp -= charactersDeepCopy[defender]["counter-Attack-Power"];
+                charactersDeepCopy[selectedCharacter].hp -= charactersDeepCopy[defender]["counter-attack-power"];
                 charactersDeepCopy[defender].hp -= chosenCharacterAttack;
                 charactersDeepCopy[selectedCharacter]["attack-power"] += chosenCharacterAttack;
             },
@@ -89,6 +94,7 @@
                 this.selectedDefender = "";
                 this.setGameState(false, false, false);
                 this.totalCharacters = 0;
+                this.defeatedCharacters = 0;
             }
         }
 
@@ -98,20 +104,21 @@
                 // Moves character boxes to appropriate row based on game state
                 box.click(function () {
                     if (!game.selectedCharacter) {
-                        box.css("background", "green"); // Change to style.css
-                        const x = $("#all-characters").children(".character-box").each(function () {
+                        box.addClass("chosen-character");
+                        $("#all-characters").children(".character-box").each(function () {
                             if (!$(this).is(box)) {
+                                $(this).addClass("enemy")
                                 $("#enemies-available").append($(this));
                             }
                         });
                         game.selectedCharacter = box.attr("name");
                     } else if (!game.selectedDefender && game.selectedCharacter) {
+                        box.addClass("defender");
                         $("#defender").append(box);
                         game.selectedDefender = box.attr("name");
                     }
 
                 })
-                // const box = $(this);        
             }
 
             function resetGame() {
@@ -120,9 +127,9 @@
                 game.resetGameState();
 
                 // Remove character boxes from all rows
-                $("#all-characters").empty();
-                $("#enemies-available").empty();
-                $("#defender").empty();
+                [$("#all-characters"), $("#enemies-available"), $("#defender"), $("#fight-result")].forEach(jQObj => {
+                    jQObj.empty();
+                });
 
                 // Initialize all-character section with character boxes
                 charactersDeepCopy = JSON.parse(JSON.stringify(charactersInitialState));;
@@ -142,9 +149,6 @@
                     characterBox
                         .addClass("character-box")
                         .attr("name", stats.name)
-                        .attr("hp", stats.hp)
-                        .attr("attack-power", stats["base-attack"])
-                        .attr("counter-attack-power", stats["base-attack"])
                         .attr("id", stats.name)
                         .append(name)
                         .append(hp)
@@ -158,14 +162,11 @@
 
             resetGame();
 
-            // bindCharacterClick(characterBox);
-            // $(".character-box").click(bindCharacterClick);
-
             $("#reset-game").click(() => {
                 resetGame();
             });
 
-            $("#fight-button").click(() => {     
+            $("#fight-button").click(() => {
 
                 if (game.state.finished || !game.selectedCharacter || !game.selectedDefender) {
                     return
@@ -174,6 +175,8 @@
                 const defenderStr = game.selectedDefender
                 const selectedCharacter = charactersDeepCopy[selectedCharacterStr]
                 const defender = charactersDeepCopy[defenderStr]
+                const yourAttack = selectedCharacter["attack-power"];
+                const defenderAttack = defender["counter-attack-power"]
 
                 game.fight(selectedCharacterStr, defenderStr);
                 if (selectedCharacter.hp <= 0) {
@@ -185,10 +188,14 @@
                     $("#defender").empty();
                     game.selectedDefender = "";
                     game.defeatedCharacters++;
+                    $("#fight-result").text("You have defeated " + defenderStr + "! Choose another enemy to continue.")
+
                 } else {
                     $("#" + defenderStr)
                         .children(".hp")
                         .text("Health: " + defender.hp);
+                    $("#fight-result").text("You attacked " + defenderStr + " for " + yourAttack + " damage. "
+                        + defenderStr + " attacked you for back for " + defenderAttack + " damage.")
                 }
 
                 const selectedCharacterObj = $("#" + selectedCharacterStr);
@@ -201,12 +208,12 @@
                     .text("Attack: " + selectedCharacter["attack-power"]);
 
                 if (game.state.loss) {
-                    console.log("YOU LOSE!")
+                    $("#fight-result").text(defenderStr + " defeated you. GAME OVER! Press restart to try again.")
                 }
                 if (game.defeatedCharacters === game.totalCharacters - 1) {
                     game.state.finished = true;
                     game.state.win = true
-                    console.log("YOU WIN!")
+                    $("#fight-result").text("You won! GAME OVER! Press restart to play again.")
                 }
             });
         });

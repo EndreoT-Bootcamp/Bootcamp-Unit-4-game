@@ -1,5 +1,16 @@
+body {
+    background-image: url("../images/star_destroyer.jpg");
+    background-repeat: no-repeat;
+    background-size: 100%;
+}
+
+#title {
+    font-size: 3em;
+    text-align: center;
+}
+
 .row {
-    height: 180px
+    height: 170px
 }
 
 .character-box {
@@ -8,7 +19,7 @@
     border-style: solid;
     border-color: green;
     border-width: 2px;
-    padding: 2px;
+    padding: 5px;
     float: left;
     margin: 2px;
     background-color: yellow;
@@ -17,3 +28,15 @@
 /* .hidden {
     visibility: none;
 } */
+
+.chosen-character {
+    background-color: lightgreen;
+}
+
+.enemy {
+    background-color: red;
+}
+
+.defender {
+    background-color: lightslategray;
+}
