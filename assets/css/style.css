@@ -1,0 +1,15 @@
+.row {
+    height: 180px
+}
+
+.character-box {
+    width: 150px;
+    height: 150px;
+    border-style: solid;
+    border-color: green;
+    border-width: 2px;
+    padding: 2px;
+    float: left;
+    margin: 2px;
+    background-color: yellow;
+}
