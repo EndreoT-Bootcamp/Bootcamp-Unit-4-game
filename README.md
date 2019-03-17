@@ -1,2 +1,2 @@
 # Bootcamp-4-game
-jQuery game
+Simple Star Wars RPG jQuery game
