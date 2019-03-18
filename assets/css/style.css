@@ -10,12 +10,12 @@ body {
 }
 
 .row {
-    height: 170px
+    height: 165px
 }
 
 .character-box {
-    width: 150px;
-    height: 150px;
+    width: 140px;
+    height: 140px;
     border-style: solid;
     border-color: green;
     border-width: 2px;
@@ -24,10 +24,6 @@ body {
     margin: 2px;
     background-color: yellow;
 }
-
-/* .hidden {
-    visibility: none;
-} */
 
 .chosen-character {
     background-color: lightgreen;
