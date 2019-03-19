@@ -5,25 +5,29 @@ const charactersInitialState =
         name: "Obi-Wan-Kenobi",
         hp: 110,
         "attack-power": 6,
-        "counter-attack-power": 6
+        "counter-attack-power": 6,
+        imageUrl: './assets/images/obiwan.jpg'
     },
     "Luke-Skywalker": {
         name: "Luke-Skywalker",
         hp: 100,
         "attack-power": 8,
-        "counter-attack-power": 8
+        "counter-attack-power": 8,
+        imageUrl: './assets/images/luke.jpg'
     },
     "Darth-Sidious": {
         name: "Darth-Sidious",
         hp: 115,
         "attack-power": 10,
-        "counter-attack-power": 10
+        "counter-attack-power": 10,
+        imageUrl: './assets/images/darth-sidious.jpg'
     },
     "Darth-Maul": {
         name: "Darth-Maul",
         hp: 120,
         "attack-power": 12,
-        "counter-attack-power": 12
+        "counter-attack-power": 12,
+        imageUrl: './assets/images/darth-maul.jpg'
     }
 };
 
@@ -108,6 +112,9 @@ $(document).ready(function () {
 
             const hp = $("<div>");
             const attack = $("<div>")
+            const image = $('<img>')
+            image.attr('src', stats.imageUrl)
+
             hp.text("Health: " + stats["hp"]);
             hp.attr("class", "hp");
             attack.text("Attack: " + stats["attack-power"]);
@@ -119,7 +126,8 @@ $(document).ready(function () {
                 .attr("id", stats.name)
                 .append(name)
                 .append(hp)
-                .append(attack);
+                .append(attack)
+                .append(image)
 
             bindCharacterClick(characterBox);
 
