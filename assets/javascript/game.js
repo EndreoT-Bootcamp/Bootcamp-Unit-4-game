@@ -1,3 +1,5 @@
+// Simple Star Wars RPG using jQuery
+
 // Initial state of all characters that will not change
 const charactersInitialState =
 {
@@ -73,7 +75,7 @@ const game = {
 $(document).ready(function () {
 
     function bindCharacterClick(box) {
-        // Moves character boxes to appropriate row based on game state
+        // Binds character box click, which will move it to appropriate row based on game state
         box.click(function () {
             if (!game.selectedCharacter) {
                 box.addClass("chosen-character");
@@ -106,19 +108,21 @@ $(document).ready(function () {
         charactersDeepCopy = JSON.parse(JSON.stringify(charactersInitialState));
         Object.values(charactersDeepCopy).forEach(stats => {
             game.totalCharacters++;
+
             const characterBox = $("<div>");
             const name = $("<div>");
-            name.text(stats.name);
-
             const hp = $("<div>");
-            const attack = $("<div>")
-            const image = $('<img>')
-            image.attr('src', stats.imageUrl)
+            const attack = $("<div>");
+            const image = $('<img>');
 
-            hp.text("Health: " + stats["hp"]);
-            hp.attr("class", "hp");
-            attack.text("Attack: " + stats["attack-power"]);
-            attack.attr("class", "attack");
+            name.text(stats.name);
+            image.attr('src', stats.imageUrl)
+            hp
+                .text("Health: " + stats["hp"])
+                .attr("class", "hp");
+            attack
+                .text("Attack: " + stats["attack-power"])
+                .attr("class", "attack");
 
             characterBox
                 .addClass("character-box")
@@ -177,11 +181,11 @@ $(document).ready(function () {
                 + defenderStr + " attacked you for back for " + defenderAttack + " damage.");
         }
 
+        // Display new HP and attack
         const selectedCharacterObj = $("#" + selectedCharacterStr);
         selectedCharacterObj
             .children(".hp")
             .text("Health: " + selectedCharacter.hp);
-
         selectedCharacterObj
             .children(".attack")
             .text("Attack: " + selectedCharacter["attack-power"]);
